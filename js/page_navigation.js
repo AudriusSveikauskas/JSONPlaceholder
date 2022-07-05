@@ -48,6 +48,10 @@ MENU_ITEMS.map((item) => {
     itemLink.classList.add("active");
   }
 
+  if (currentPage === "" && title === "Home") {
+    itemLink.classList.add("active");
+  }
+
   navItem.append(itemLink);
   nav.append(navItem);
 });
