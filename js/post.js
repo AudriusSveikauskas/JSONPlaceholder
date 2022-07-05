@@ -152,7 +152,8 @@ function loadMoreBtn() {
     "col-6",
     "mx-auto",
     "mt-4",
-    "mb-4"
+    "mb-4",
+    "container"
   );
 
   const loadMoreBtn = document.createElement("button");
