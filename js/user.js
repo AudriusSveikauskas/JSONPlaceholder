@@ -72,7 +72,7 @@ function showUser(userObj) {
 
   const avatarPicEl = document.createElement("img");
   avatarPicEl.classList.add("img-fluid", "rounded-top-left");
-  avatarPicEl.setAttribute("src", `https://i.pravatar.cc/350?img=${userId}`);
+  avatarPicEl.setAttribute("src", `https://i.pravatar.cc/250?img=${userId}`);
   avatarPicEl.setAttribute("alt", `${name}`);
 
   const contentColEl = document.createElement("div");
@@ -281,7 +281,7 @@ function showUser(userObj) {
     "aria-controls",
     `collapse-posts-${userId}`
   );
-  accordionPostsButtonEl.textContent = `Posts written by - ${name}`;
+  accordionPostsButtonEl.textContent = `Posts written by ${name}`;
 
   accordionPostsHeaderEl.append(accordionPostsButtonEl);
 
@@ -299,12 +299,131 @@ function showUser(userObj) {
 
   const accordionPostsBodyEl = document.createElement("div");
   accordionPostsBodyEl.classList.add("accordion-body");
-  accordionPostsBodyEl.textContent = "POSTS";
+
+  const accordionPostsGroupEl = document.createElement("ul");
+  accordionPostsGroupEl.classList.add("list-group", "list-group-flush");
+
+  getAllPostsByUserId(userId).then((posts) => {
+    posts.map((post) => {
+      const { id: postId, title: postTitle } = post;
+      const accordionPostItemEl = document.createElement("li");
+      accordionPostItemEl.classList.add("list-group-item");
+      const postLinkEl = document.createElement("a");
+      postLinkEl.classList.add("text-decoration-none");
+      postLinkEl.setAttribute("href", `post.html?_postId=${postId}`);
+      const postEl = document.createElement("span");
+      postEl.textContent = `#${postId} ${postTitle
+        .charAt(0)
+        .toUpperCase()}${postTitle.slice(1).toLowerCase()}`;
+      postLinkEl.append(postEl);
+      accordionPostItemEl.append(postLinkEl);
+      accordionPostsGroupEl.prepend(accordionPostItemEl);
+    });
+  });
+
+  accordionPostsBodyEl.append(accordionPostsGroupEl);
 
   accordionPostsBodyWrapperEl.append(accordionPostsBodyEl);
   accordionPostsEl.append(accordionPostsHeaderEl, accordionPostsBodyWrapperEl);
+
+  // ALBUMS
+  const accordionAlbumsEl = document.createElement("div");
+  accordionAlbumsEl.classList.add("accordion-item");
+
+  const accordionAlbumsHeaderEl = document.createElement("h2");
+  accordionAlbumsHeaderEl.classList.add("accordion-header");
+  accordionAlbumsHeaderEl.setAttribute("id", `albums-${userId}`);
+
+  const accordionAlbumsButtonEl = document.createElement("button");
+  accordionAlbumsButtonEl.classList.add("accordion-button", "collapsed");
+  accordionAlbumsButtonEl.setAttribute("type", "button");
+  accordionAlbumsButtonEl.setAttribute("data-bs-toggle", "collapse");
+  accordionAlbumsButtonEl.setAttribute(
+    "data-bs-target",
+    `#collapse-albums-${userId}`
+  );
+  accordionAlbumsButtonEl.setAttribute("aria-expanded", "false");
+  accordionAlbumsButtonEl.setAttribute(
+    "aria-controls",
+    `collapse-albums-${userId}`
+  );
+  accordionAlbumsButtonEl.textContent = "Photo Albums";
+
+  accordionAlbumsHeaderEl.append(accordionAlbumsButtonEl);
+
+  const accordionAlbumsBodyWrapperEl = document.createElement("div");
+  accordionAlbumsBodyWrapperEl.classList.add("accordion-collapse", "collapse");
+  accordionAlbumsBodyWrapperEl.setAttribute("id", `collapse-albums-${userId}`);
+  accordionAlbumsBodyWrapperEl.setAttribute(
+    "aria-labelledby",
+    `albums-${userId}`
+  );
+  accordionAlbumsBodyWrapperEl.setAttribute(
+    "data-bs-parent",
+    `accordion-${userId}`
+  );
+
+  const accordionAlbumsBodyEl = document.createElement("div");
+  accordionAlbumsBodyEl.classList.add("accordion-body");
+
+  const accordionAlbumsGridEl = document.createElement("div");
+  accordionAlbumsGridEl.classList.add(
+    "row",
+    "row-cols-1",
+    "row-cols-md-4",
+    "g-4"
+  );
+
+  getAllAlbumsByUserId(userId).then((albums) => {
+    albums.map((album) => {
+      const { id: albumId, title: albumTitle } = album;
+      const albumColEl = document.createElement("div");
+      albumColEl.classList.add("col");
+      const albumCardEl = document.createElement("div");
+      albumCardEl.classList.add("card", "h-100");
+      const albumImgEl = document.createElement("img");
+
+      getFirstPhotoByAlbumId(albumId).then((photo) => {
+        const { title: photoTitle, thumbnailUrl } = photo;
+        albumImgEl.setAttribute("src", `${thumbnailUrl}`);
+        albumImgEl.setAttribute("alt", `${photoTitle}`);
+      });
+
+      const albumCardBodyEl = document.createElement("div");
+      albumCardBodyEl.classList.add("card-body");
+      const albumCardTitle = document.createElement("h6");
+      albumCardTitle.textContent = `${albumTitle
+        .charAt(0)
+        .toUpperCase()}${albumTitle.slice(1).toLowerCase()}`;
+      const albumCardFooterEl = document.createElement("div");
+      albumCardFooterEl.classList.add("card-footer");
+      const albumTextMutedEl = document.createElement("small");
+      albumTextMutedEl.classList.add("text-muted");
+      albumTextMutedEl.textContent = `Album #${albumId}`;
+
+      albumCardBodyEl.append(albumCardTitle);
+      albumCardFooterEl.append(albumTextMutedEl);
+      albumCardEl.append(albumImgEl, albumCardBodyEl, albumCardFooterEl);
+      albumColEl.append(albumCardEl);
+      accordionAlbumsGridEl.prepend(albumColEl);
+    });
+  });
+
+  accordionAlbumsBodyEl.append(accordionAlbumsGridEl);
+
+  accordionAlbumsBodyWrapperEl.append(accordionAlbumsBodyEl);
+  accordionAlbumsEl.append(
+    accordionAlbumsHeaderEl,
+    accordionAlbumsBodyWrapperEl
+  );
+
   //
-  accordionEl.append(accordionMapEl, accordionCompanyEl, accordionPostsEl);
+  accordionEl.append(
+    accordionMapEl,
+    accordionCompanyEl,
+    accordionPostsEl,
+    accordionAlbumsEl
+  );
   cardFooter.append(accordionEl);
 
   avatarColEl.append(avatarPicEl);
@@ -317,8 +436,20 @@ function showUser(userObj) {
   CONTAINER.append(cardEl);
 }
 
-function getMap(lat, lng) {
-  return `<iframe height="400" width="500"
-    src="https://www.mapquest.com/embed/latlng/${lat},${lng}?center=${lat},${lng}&zoom=1&maptype=map">
-    </iframe>`;
+async function getAllPostsByUserId(userId) {
+  return await fetch(`${USER_ENDPOINT}/${userId}/posts`)
+    .then((response) => response.json())
+    .then((posts) => posts);
+}
+
+async function getAllAlbumsByUserId(userId) {
+  return await fetch(`${USER_ENDPOINT}/${userId}/albums`)
+    .then((response) => response.json())
+    .then((albums) => albums);
+}
+
+async function getFirstPhotoByAlbumId(albumId) {
+  return await fetch(`${ALBUMS_ENDPOINT}/${albumId}/photos`)
+    .then((response) => response.json())
+    .then((photos) => photos[0]);
 }

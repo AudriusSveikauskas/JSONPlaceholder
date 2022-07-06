@@ -5,8 +5,7 @@ const CURRENT_PAGE = window.location.pathname.split("/").pop();
 
 const POST_ENDPOINT = "https://jsonplaceholder.typicode.com/posts";
 const USER_ENDPOINT = "https://jsonplaceholder.typicode.com/users";
-
-//const ALBUMS_ENDPOINT = "https://jsonplaceholder.typicode.com/albums";
+const ALBUMS_ENDPOINT = "https://jsonplaceholder.typicode.com/albums";
 
 function loadMoreBtn() {
   const loadMoreBtnWrapper = document.createElement("div");
@@ -15,7 +14,6 @@ function loadMoreBtn() {
     "gap-2",
     "col-6",
     "mx-auto",
-    "mt-4",
     "mb-4",
     "container"
   );

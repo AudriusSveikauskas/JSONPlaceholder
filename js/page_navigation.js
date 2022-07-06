@@ -2,9 +2,9 @@
 
 const MENU_ITEMS = [
   { title: "Home", url: "index.html", id: "homePage" },
-  { title: "Post", url: "post.html", id: "postPage" },
-  { title: "User", url: "user.html", id: "userPage" },
-  { title: "Album", url: "album.html", id: "albumPage" },
+  { title: "Posts", url: "post.html", id: "postPage" },
+  { title: "Users", url: "user.html", id: "userPage" },
+  { title: "Albums", url: "album.html", id: "albumPage" },
 ];
 
 const navBar = document.createElement("nav");

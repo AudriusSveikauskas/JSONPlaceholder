@@ -13,7 +13,7 @@ if (postId === null) {
   loadMoreBtn();
 } else {
   toggleLoadingAnimation();
-  getPostById(postId, 1);
+  getPostById(postId - 1, 1);
 }
 
 function getPostById(start, limit) {
