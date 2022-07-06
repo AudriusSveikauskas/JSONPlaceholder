@@ -6,8 +6,6 @@ const MENU_ITEMS = [
   { title: "User", url: "user.html", id: "userPage" },
   { title: "Album", url: "album.html", id: "albumPage" },
 ];
-const container = document.getElementById("content");
-const currentPage = window.location.pathname.split("/").pop();
 
 const navBar = document.createElement("nav");
 navBar.classList.add(
@@ -44,11 +42,11 @@ MENU_ITEMS.map((item) => {
 
   const menuUrl = url.split("/").pop();
 
-  if (currentPage === menuUrl) {
+  if (CURRENT_PAGE === menuUrl) {
     itemLink.classList.add("active");
   }
 
-  if (currentPage === "" && title === "Home") {
+  if (CURRENT_PAGE === "" && title === "Home") {
     itemLink.classList.add("active");
   }
 
@@ -60,4 +58,4 @@ navBarBrand.append(navBarLogo);
 navBarContainer.append(navBarBrand, nav);
 navBar.append(navBarContainer);
 
-container.before(navBar);
+CONTAINER.before(navBar);

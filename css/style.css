@@ -1,3 +1,17 @@
 .container {
     max-width: 768px;
 }
+
+.rounded-top-left {
+    border-top-left-radius: 6px;
+}
+
+.loading-animation {
+    background-image: url("../img/loading.svg");
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 150px;
+    height: 150px;
+}

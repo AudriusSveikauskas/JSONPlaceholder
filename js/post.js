@@ -1,24 +1,23 @@
 "use strict";
 
-const POST_LIMIT = 5;
+const postLimit = 5;
 let startPostId = 0;
-
-const postsEndpoint = "https://jsonplaceholder.typicode.com/posts";
-const usersEndpoint = "https://jsonplaceholder.typicode.com/users";
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const postId = urlParams.get("_postId");
 
 if (postId === null) {
-  getPostById(startPostId, POST_LIMIT);
+  toggleLoadingAnimation();
+  getPostById(startPostId, postLimit);
   loadMoreBtn();
 } else {
+  toggleLoadingAnimation();
   getPostById(postId, 1);
 }
 
 function getPostById(start, limit) {
-  fetch(`${postsEndpoint}?_start=${start}&_limit=${limit}`)
+  fetch(`${POST_ENDPOINT}?_start=${start}&_limit=${limit}`)
     .then((response) => response.json())
     .then((posts) => {
       posts.map((post) => {
@@ -40,18 +39,19 @@ function getPostById(start, limit) {
           });
         });
       });
+      toggleLoadingAnimation();
     });
   startPostId += limit;
 }
 
 async function getUserById(userId) {
-  return await fetch(`${usersEndpoint}/${userId}`)
+  return await fetch(`${USER_ENDPOINT}/${userId}`)
     .then((response) => response.json())
     .then((user) => user);
 }
 
 async function getComments(postId) {
-  return await fetch(`${postsEndpoint}/${postId}/comments`)
+  return await fetch(`${POST_ENDPOINT}/${postId}/comments`)
     .then((response) => response.json())
     .then((comments) => comments);
 }
@@ -141,33 +141,5 @@ function showPost(postObj) {
     commentsEl
   );
   cardEl.append(cardBodyEl);
-  container.append(cardEl);
-}
-
-function loadMoreBtn() {
-  const loadMoreBtnWrapper = document.createElement("div");
-  loadMoreBtnWrapper.classList.add(
-    "d-grid",
-    "gap-2",
-    "col-6",
-    "mx-auto",
-    "mt-4",
-    "mb-4",
-    "container"
-  );
-
-  const loadMoreBtn = document.createElement("button");
-  loadMoreBtn.classList.add("btn", "btn-primary");
-  loadMoreBtn.setAttribute("type", "button");
-  loadMoreBtn.textContent = "Load more...";
-
-  loadMoreBtnWrapper.append(loadMoreBtn);
-  container.after(loadMoreBtnWrapper);
-  container.append();
-
-  loadMoreBtn.addEventListener("click", () => {
-    if (currentPage === "post.html") {
-      getPostById(startPostId, POST_LIMIT);
-    }
-  });
+  CONTAINER.append(cardEl);
 }
