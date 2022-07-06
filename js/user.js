@@ -417,7 +417,8 @@ function showUser(userObj) {
     accordionAlbumsBodyWrapperEl
   );
 
-  //
+  // END
+
   accordionEl.append(
     accordionMapEl,
     accordionCompanyEl,
