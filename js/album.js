@@ -1,29 +1,36 @@
 "use strict";
 
-let startAlbumId = 9;
+let startAlbumId = 0;
 let albumLimit = 2;
+let albumPage = 1;
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const albumId = urlParams.get("_albumId");
+albumPage = urlParams.get("_page");
 
 if (albumId !== null) {
   startAlbumId = albumId - 1;
   albumLimit = 1;
 }
 
-async function getInfo(start, limit) {
+async function getInfo(start, page, limit) {
   return await new Promise((resolve) => {
     fetch(
+      // `${ALBUMS_ENDPOINT}?_start=${start}&_page=${page}&_limit=${limit}&_expand=user&_embed=photos`
       `${ALBUMS_ENDPOINT}?_start=${start}&_limit=${limit}&_expand=user&_embed=photos`
     )
+      .then((response) => {
+        console.log(response.headers.get("Link"));
+        return response;
+      })
       .then((response) => response.json())
       .then((data) => resolve(data));
   });
 }
 
 function showInfo() {
-  getInfo(startAlbumId, albumLimit).then((arr) => {
+  getInfo(startAlbumId, albumPage, albumLimit).then((arr) => {
     console.log(arr);
     arr.map((album) => {
       const { id: albumId, title: albumTitle, user, photos, userId } = album;
@@ -65,43 +72,56 @@ function showInfo() {
       );
       albumCardEl.append(albumCardBodyEl);
 
-      photos.map((photo, index) => {
-        const { id: photoId, title: photoTitle, url: photoUrl } = photo;
-        const carouselItemEl = document.createElement("div");
-        carouselItemEl.classList.add("carousel-item");
+      //
 
-        if (index === 0) {
-          carouselItemEl.classList.add("active");
-        }
+      fetch(
+        `https://pixabay.com/api/?key=23683988-abaed29beae397d28600f0b4f&q=${albumId}&per_page=${photos.length}`
+      )
+        .then((response) => response.json())
+        .then((photosArr) => {
+          photos.map((photo, index) => {
+            const { id: photoId, title: photoTitle } = photo;
+            const carouselItemEl = document.createElement("div");
+            carouselItemEl.classList.add("carousel-item");
 
-        const carouselItemImgEl = document.createElement("img");
-        carouselItemImgEl.classList.add(
-          "d-block",
-          "w-100",
-          "carousel-image-height"
-        );
-        carouselItemImgEl.setAttribute("src", photoUrl);
-        carouselItemImgEl.setAttribute("alt", photoTitle);
+            if (index === 0) {
+              carouselItemEl.classList.add("active");
+            }
 
-        const carouselCaptionEl = document.createElement("div");
-        carouselCaptionEl.classList.add(
-          "carousel-caption",
-          "d-none",
-          "d-md-block"
-        );
+            const carouselItemImgEl = document.createElement("img");
+            carouselItemImgEl.classList.add(
+              "d-block",
+              "w-100",
+              "carousel-image-height"
+            );
+            carouselItemImgEl.setAttribute(
+              "src",
+              `${photosArr.hits[index].webformatURL}`
+            );
+            carouselItemImgEl.setAttribute("alt", photoTitle);
 
-        const carouselSlideLabelEl = document.createElement("h5");
-        carouselSlideLabelEl.textContent = `${photoTitle
-          .charAt(0)
-          .toUpperCase()}${photoTitle.slice(1).toLowerCase()}`;
+            const carouselCaptionEl = document.createElement("div");
+            carouselCaptionEl.classList.add(
+              "carousel-caption",
+              "d-none",
+              "d-md-block"
+            );
 
-        const carouselSlideTextEl = document.createElement("p");
-        carouselSlideTextEl.textContent = `Photo #${photoId}`;
+            const carouselSlideLabelEl = document.createElement("h5");
+            carouselSlideLabelEl.textContent = `${photoTitle
+              .charAt(0)
+              .toUpperCase()}${photoTitle.slice(1).toLowerCase()}`;
 
-        carouselCaptionEl.append(carouselSlideLabelEl, carouselSlideTextEl);
-        carouselItemEl.append(carouselItemImgEl, carouselCaptionEl);
-        carouselInnerEl.append(carouselItemEl);
-      });
+            const carouselSlideTextEl = document.createElement("p");
+            carouselSlideTextEl.textContent = `Photo #${photoId}`;
+
+            carouselCaptionEl.append(carouselSlideLabelEl, carouselSlideTextEl);
+            carouselItemEl.append(carouselItemImgEl, carouselCaptionEl);
+            carouselInnerEl.append(carouselItemEl);
+          });
+        });
+
+      //
 
       const carouselControlPrevEl = document.createElement("button");
       carouselControlPrevEl.classList.add("carousel-control-prev");

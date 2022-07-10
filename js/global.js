@@ -128,7 +128,7 @@ searchFormButton.textContent = "Search for: ";
 searchFormButton.addEventListener("click", () => {
   const searchCategories = document.querySelectorAll(".dropdown-item");
   searchCategories.forEach((link) => {
-    link.href = link.href + "&_searchQuery=" + searchFormInput.value;
+    link.href = link.href + "&_like=" + searchFormInput.value;
   });
 });
 
@@ -136,12 +136,12 @@ const searchFormDropdownList = document.createElement("ul");
 searchFormDropdownList.classList.add("dropdown-menu");
 searchFormDropdownList.setAttribute("aria-labelledby", "search-button");
 
-const searchFormDropdownListItems = ["name", "username", "email", "phone"];
+const searchFormDropdownListItems = ["users", "posts", "comments", "albums"];
 searchFormDropdownListItems.map((item) => {
   const listItem = document.createElement("li");
   const itemLink = document.createElement("a");
   itemLink.classList.add("dropdown-item");
-  itemLink.setAttribute("href", `./search.html?_searchCat=${item}`);
+  itemLink.setAttribute("href", `./search.html?_category=${item}`);
   itemLink.textContent = `${item.charAt(0).toUpperCase()}${item
     .slice(1)
     .toLowerCase()}`;
