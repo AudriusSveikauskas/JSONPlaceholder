@@ -21,7 +21,6 @@ async function getInfo(start, page, limit) {
       `${ALBUMS_ENDPOINT}?_start=${start}&_limit=${limit}&_expand=user&_embed=photos`
     )
       .then((response) => {
-        console.log(response.headers.get("Link"));
         return response;
       })
       .then((response) => response.json())
@@ -31,7 +30,6 @@ async function getInfo(start, page, limit) {
 
 function showInfo() {
   getInfo(startAlbumId, albumPage, albumLimit).then((arr) => {
-    console.log(arr);
     arr.map((album) => {
       const { id: albumId, title: albumTitle, user, photos, userId } = album;
 
