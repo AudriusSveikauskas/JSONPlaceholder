@@ -370,7 +370,7 @@ function showUser(userObj) {
   accordionAlbumsGridEl.classList.add(
     "row",
     "row-cols-1",
-    "row-cols-md-4",
+    "row-cols-md-3",
     "g-4"
   );
 
@@ -379,14 +379,30 @@ function showUser(userObj) {
       const { id: albumId, title: albumTitle } = album;
       const albumColEl = document.createElement("div");
       albumColEl.classList.add("col");
+
+      const albumLinkEl = document.createElement("a");
+      albumLinkEl.classList.add("text-decoration-none");
+      albumLinkEl.setAttribute("href", `./album.html?_albumId=${albumId}`);
+
       const albumCardEl = document.createElement("div");
       albumCardEl.classList.add("card", "h-100");
+
       const albumImgEl = document.createElement("img");
+      albumImgEl.classList.add("album-thumbnail");
 
       getFirstPhotoByAlbumId(albumId).then((photo) => {
-        const { title: photoTitle, thumbnailUrl } = photo;
-        albumImgEl.setAttribute("src", `${thumbnailUrl}`);
+        const { title: photoTitle, id: photoId, thumbnailUrl } = photo;
         albumImgEl.setAttribute("alt", `${photoTitle}`);
+
+        getPhotoFromPixabayById(photoId)
+          .then((photo) => {
+            const { hits } = photo;
+            const { webformatURL } = hits[0];
+            albumImgEl.setAttribute("src", `${webformatURL}`);
+          })
+          .catch(() => {
+            albumImgEl.setAttribute("src", `${thumbnailUrl}`);
+          });
       });
 
       const albumCardBodyEl = document.createElement("div");
@@ -404,7 +420,8 @@ function showUser(userObj) {
       albumCardBodyEl.append(albumCardTitle);
       albumCardFooterEl.append(albumTextMutedEl);
       albumCardEl.append(albumImgEl, albumCardBodyEl, albumCardFooterEl);
-      albumColEl.append(albumCardEl);
+      albumLinkEl.append(albumCardEl);
+      albumColEl.append(albumLinkEl);
       accordionAlbumsGridEl.prepend(albumColEl);
     });
   });
@@ -453,4 +470,12 @@ async function getFirstPhotoByAlbumId(albumId) {
   return await fetch(`${ALBUMS_ENDPOINT}/${albumId}/photos`)
     .then((response) => response.json())
     .then((photos) => photos[0]);
+}
+
+async function getPhotoFromPixabayById(photoId) {
+  return await fetch(
+    `https://pixabay.com/api/?key=23683988-abaed29beae397d28600f0b4f&id=${photoId}`
+  )
+    .then((response) => response.json())
+    .then((photos) => photos);
 }

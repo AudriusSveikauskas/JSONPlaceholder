@@ -19,3 +19,12 @@
     width: 150px;
     height: 150px;
 }
+
+.album-thumbnail {
+    height: 204px;
+    object-fit: cover;
+}
+
+.carousel-image-height {
+    height: 556px;
+}
