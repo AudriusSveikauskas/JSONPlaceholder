@@ -21,6 +21,7 @@ async function getInfo(start, page, limit) {
       `${ALBUMS_ENDPOINT}?_start=${start}&_limit=${limit}&_expand=user&_embed=photos`
     )
       .then((response) => {
+        console.log(response.headers.get("Link"));
         return response;
       })
       .then((response) => response.json())

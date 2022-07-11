@@ -141,7 +141,7 @@ searchFormDropdownListItems.map((item) => {
   const listItem = document.createElement("li");
   const itemLink = document.createElement("a");
   itemLink.classList.add("dropdown-item");
-  itemLink.setAttribute("href", `./search.html?_category=${item}`);
+  itemLink.setAttribute("href", `./search.html?_resource=${item}`);
   itemLink.textContent = `${item.charAt(0).toUpperCase()}${item
     .slice(1)
     .toLowerCase()}`;

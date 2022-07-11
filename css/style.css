@@ -28,3 +28,7 @@
 .carousel-image-height {
     height: 556px;
 }
+
+.mark, mark {
+    padding: 3px 1px;
+}
