@@ -42,12 +42,12 @@ const searchResource = urlParams.get("_resource");
 const searchPhrase = urlParams.get("_like");
 
 const searchWrapper = document.createElement("div");
-searchWrapper.classList.add("mt-2");
+searchWrapper.classList.add("mt-4");
 
 resources.map((item) => {
   if (item.endPoint === searchResource) {
-    item.keys.map((key) => {
-      fetch(
+    item.keys.map(async (key) => {
+      await fetch(
         `https://jsonplaceholder.typicode.com/${searchResource}?${key}_like=${searchPhrase}`
       )
         .then((response) => response.json())

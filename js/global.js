@@ -123,7 +123,7 @@ searchFormButton.setAttribute("type", "button");
 searchFormButton.setAttribute("id", "search-button");
 searchFormButton.setAttribute("data-bs-toggle", "dropdown");
 searchFormButton.setAttribute("aria-expanded", "false");
-searchFormButton.textContent = "Search for: ";
+searchFormButton.textContent = "Search in: ";
 
 searchFormButton.addEventListener("click", () => {
   const searchCategories = document.querySelectorAll(".dropdown-item");
