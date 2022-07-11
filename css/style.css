@@ -26,7 +26,8 @@
 }
 
 .carousel-image-height {
-    height: 556px;
+    height: 450px;
+    object-fit: cover;
 }
 
 .mark, mark {
