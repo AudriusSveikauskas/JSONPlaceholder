@@ -1,27 +1,29 @@
 "use strict";
 
-let startAlbumId = 0;
 let albumLimit = 2;
-let albumPage = 1;
 
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
-const albumId = urlParams.get("_albumId");
-albumPage = urlParams.get("_page");
+let currentPage = Number(urlParams.get("_page"));
+let totalPages;
 
-if (albumId !== null) {
-  startAlbumId = albumId - 1;
-  albumLimit = 1;
+if (currentPage === 0) {
+  currentPage = 1;
 }
 
-async function getInfo(start, page, limit) {
+async function getInfo(page, limit) {
+  const albumId = urlParams.get("_albumId");
   return await new Promise((resolve) => {
-    fetch(
-      // `${ALBUMS_ENDPOINT}?_start=${start}&_page=${page}&_limit=${limit}&_expand=user&_embed=photos`
-      `${ALBUMS_ENDPOINT}?_start=${start}&_limit=${limit}&_expand=user&_embed=photos`
-    )
+    let fetchUrl = `${ALBUMS_ENDPOINT}?_page=${page}&_limit=${limit}&_expand=user&_embed=photos`;
+
+    if (albumId !== null) {
+      fetchUrl = `${ALBUMS_ENDPOINT}?id=${albumId}&_expand=user&_embed=photos`;
+    }
+
+    fetch(fetchUrl)
       .then((response) => {
-        console.log(response.headers.get("Link"));
+        const totalAlbums = Number(response.headers.get("x-total-count"));
+        totalPages = Math.ceil(totalAlbums / albumLimit);
         return response;
       })
       .then((response) => response.json())
@@ -30,7 +32,8 @@ async function getInfo(start, page, limit) {
 }
 
 function showInfo() {
-  getInfo(startAlbumId, albumPage, albumLimit).then((arr) => {
+  toggleLoadingAnimation();
+  getInfo(currentPage, albumLimit).then((arr) => {
     arr.map((album) => {
       const { id: albumId, title: albumTitle, user, photos, userId } = album;
 
@@ -112,6 +115,7 @@ function showInfo() {
               .toUpperCase()}${photoTitle.slice(1).toLowerCase()}`;
 
             const carouselSlideTextEl = document.createElement("p");
+            carouselSlideTextEl.classList.add("mb-0");
             carouselSlideTextEl.textContent = `Photo #${photoId}`;
 
             carouselCaptionEl.append(carouselSlideLabelEl, carouselSlideTextEl);
@@ -172,7 +176,104 @@ function showInfo() {
       albumCardEl.append(carouselSlideEl);
       CONTAINER.append(albumCardEl);
     });
+    showPagination();
+    toggleLoadingAnimation();
   });
+}
+
+function createPagesArr() {
+  let pagesToShow = [];
+
+  if (totalPages <= 10) {
+    for (let i = 1; i <= totalPages; i++) {
+      pagesToShow.push(i);
+    }
+  } else {
+    if (currentPage - 5 >= 1 && currentPage + 4 <= totalPages) {
+      for (let i = currentPage - 5; i <= currentPage + 4; i++) {
+        pagesToShow.push(i);
+      }
+    } else if (currentPage - 5 < 1) {
+      for (let i = 1; i <= 10; i++) {
+        pagesToShow.push(i);
+      }
+    } else {
+      for (let i = totalPages - 9; i <= totalPages; i++) {
+        pagesToShow.push(i);
+      }
+    }
+  }
+
+  return pagesToShow;
+}
+
+function showPagination() {
+  const pages = createPagesArr();
+
+  const paginationWrapper = document.createElement("nav");
+  paginationWrapper.classList.add("container", "mb-4", "d-flex");
+
+  const pagination = document.createElement("ul");
+  pagination.classList.add("pagination", "mx-auto");
+
+  pages.map((page, index) => {
+    if (index === 0 && page > 1) {
+      pagination.append(createPaginationEl("First", false));
+      if (page === currentPage) {
+        pagination.append(createPaginationEl(page, true));
+      } else {
+        pagination.append(createPaginationEl(page, false));
+      }
+    }
+
+    if (index !== 0 && index < pages.length - 1) {
+      if (page === currentPage) {
+        pagination.append(createPaginationEl(page, true));
+      } else {
+        pagination.append(createPaginationEl(page, false));
+      }
+    }
+
+    if (index === pages.length - 1) {
+      if (page === currentPage) {
+        pagination.append(createPaginationEl(page, true));
+      } else {
+        pagination.append(createPaginationEl(page, false));
+      }
+      if (page < totalPages) {
+        pagination.append(createPaginationEl("Last", false, totalPages));
+      }
+    }
+  });
+
+  paginationWrapper.append(pagination);
+  CONTAINER.after(paginationWrapper);
+}
+
+function createPaginationEl(page, isCurrent, totalPages) {
+  const pageLink = `./album.html?_limit${albumLimit}&_page=`;
+
+  const paginationPageItem = document.createElement("li");
+  paginationPageItem.classList.add("page-item");
+
+  const paginationPageLink = document.createElement("a");
+  paginationPageLink.classList.add("page-link");
+  paginationPageLink.textContent = page;
+
+  if (page === "First") {
+    paginationPageLink.setAttribute("href", `${pageLink}1`);
+  } else if (page === "Last") {
+    paginationPageLink.setAttribute("href", `${pageLink}${totalPages}`);
+  } else {
+    if (isCurrent) {
+      paginationPageItem.classList.add("active");
+    } else {
+      paginationPageLink.setAttribute("href", `${pageLink}${page}`);
+    }
+  }
+
+  paginationPageItem.append(paginationPageLink);
+  return paginationPageItem;
 }
 
 showInfo();

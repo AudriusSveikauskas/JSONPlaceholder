@@ -46,7 +46,7 @@ async function getPostByUserId(userId) {
 async function getAlbumsByUserId(userId) {
   return await fetch(`${USER_ENDPOINT}/${userId}/albums`)
     .then((response) => response.json())
-    .then((posts) => posts);
+    .then((albums) => albums);
 }
 
 function showUser(userObj) {

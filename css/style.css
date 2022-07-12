@@ -33,3 +33,7 @@
 .mark, mark {
     padding: 3px 1px;
 }
+
+.carousel-caption {
+    background-color: rgba(0, 0, 0, 0.4);
+}
