@@ -6,18 +6,34 @@ let startUserId = 0;
 const queryString = window.location.search;
 const urlParams = new URLSearchParams(queryString);
 const userId = urlParams.get("_userId");
+let currentPage = Number(urlParams.get("_page"));
+let totalPages;
+
+if (currentPage === 0) {
+  currentPage = 1;
+}
 
 if (userId === null) {
   toggleLoadingAnimation();
-  getUserById(startUserId, userLimit);
-  loadMoreBtn();
+  getUserById(userId, userLimit, currentPage);
 } else {
   toggleLoadingAnimation();
   getUserById(userId - 1, 1);
 }
 
-function getUserById(start, limit) {
-  fetch(`${USER_ENDPOINT}?_start=${start}&_limit=${limit}`)
+function getUserById(start, limit, page) {
+  let fetchUrl = `${USER_ENDPOINT}?_start=${start}&_limit=${limit}`;
+  console.log(page);
+  if (page) {
+    fetchUrl = `${USER_ENDPOINT}?_page=${page}&_limit=${limit}`;
+  }
+  fetch(fetchUrl)
+    .then((response) => {
+      const totalAlbums = Number(response.headers.get("x-total-count"));
+      totalPages = Math.ceil(totalAlbums / userLimit);
+      showPagination();
+      return response;
+    })
     .then((response) => response.json())
     .then((users) => {
       users.map((user) => {
@@ -478,4 +494,51 @@ async function getPhotoFromPixabayById(photoId) {
   )
     .then((response) => response.json())
     .then((photos) => photos);
+}
+
+// <div className="form-floating">
+//     <select className="form-select" id="floatingSelect" aria-label="Floating label select example">
+//         <option selected>Open this select menu</option>
+//         <option value="1">One</option>
+//         <option value="2">Two</option>
+//         <option value="3">Three</option>
+//     </select>
+//     <label htmlFor="floatingSelect">Works with selects</label>
+// </div>
+
+function showPagination() {
+  const paginationWrapper = document.createElement("div");
+  paginationWrapper.classList.add("container", "mb-4", "d-flex");
+  const formFloating = document.createElement("div");
+  formFloating.classList.add("form-floating", "mx-auto");
+
+  const formSelect = document.createElement("select");
+  formSelect.classList.add("form-select");
+  formSelect.setAttribute("id", "floatingSelect");
+  formSelect.addEventListener("change", (e) => {
+    const selectedPage = e.target.value;
+    if (selectedPage !== currentPage) {
+      window.location.href = `./user.html?_page=${selectedPage}&_limit=${userLimit}`;
+    }
+  });
+
+  for (let i = 1; i <= totalPages; i++) {
+    const option = document.createElement("option");
+    if (i === currentPage) {
+      option.setAttribute("selected", "selected");
+      option.classList.add("fst-italic", "fw-bolder");
+      option.textContent = `Page ${currentPage} of ${totalPages}`;
+    } else {
+      option.setAttribute("value", i);
+      option.textContent = i;
+    }
+    formSelect.append(option);
+  }
+  const paginationLabel = document.createElement("label");
+  paginationLabel.setAttribute("htmlFor", "floatingSelect");
+  paginationLabel.textContent = "Choose...";
+
+  formFloating.append(formSelect, paginationLabel);
+  paginationWrapper.append(formFloating);
+  CONTAINER.after(paginationWrapper);
 }
